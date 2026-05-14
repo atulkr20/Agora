@@ -2,8 +2,8 @@
   "compilerOptions": {
     /* Target & Environment */
     "target": "ES2022",                          /* Use modern ECMAScript features supported by Node 20+ */
-    "module": "NodeNext",                        /* Match standard Node.js module resolution */
-    "moduleResolution": "NodeNext",              /* Ensure imports map properly to modern Node ESM resolutions */
+    "module": "ESNext",                        /* Match standard Node.js module resolution */
+    "moduleResolution": "Bundler",              /* Ensure imports map properly to modern Node ESM resolutions */
     "lib": ["ES2022"],                           /* Inject modern JS library APIs into global scope */
 
     /* Output Structure */
