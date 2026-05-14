@@ -1,0 +1,12 @@
+
+Started building Agora — a full-scale centralized cryptocurrency exchange engineered completely from scratch. Because apparently normal people spend weekends touching grass, while we voluntarily build distributed financial infrastructure that can implode if one decimal point sneezes wrong.
+
+This isn’t a toy trading app with fake candles and a “Buy BTC” button glued onto a dashboard. We’re designing the complete exchange architecture the way real production systems operate: a high-performance matching engine capable of processing orders with low latency, real-time order books synchronized over WebSockets, secure wallet management, trade settlement pipelines, async job processing with queues, and scalable backend services built for reliability under heavy load. Every component is being designed with system design principles in mind — concurrency handling, fault tolerance, event-driven architecture, data consistency, and real-time communication at scale.
+
+The backend is being fully handled by me and Kushagra Bharti using Node.js and TypeScript, focusing on performance, architecture, and production-grade infrastructure. Meanwhile, Aman Raj is building the frontend experience — integrating real-time charts, live order book visualization, trading interfaces, and responsive UI systems that mimic the speed and feel of modern exchanges.
+
+We’re also documenting the difficult engineering problems we encounter throughout the journey — from synchronization issues and queue failures to matching logic edge cases and real-time data consistency. The goal isn’t just to build a crypto exchange, but to deeply understand the systems that power modern financial platforms from the inside out.
+
+The build begins. Humanity invented decentralized currency just to rebuild Wall Street with extra steps and websocket reconnection bugs. Still, this one’s going to be worth it.
+
+#buildinpublic #backend #nodejs #typescript #systemdesign
