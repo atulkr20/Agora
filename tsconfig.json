@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    /* Project Layout */
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* Language and Runtime */
+    "target": "ES2020",
+    "module": "commonjs",
+    "strict": true,
+
+    /* Interop */
+    "esModuleInterop": true,
+
+    /* Type Checking */
+    "skipLibCheck": true
+  }
+}
