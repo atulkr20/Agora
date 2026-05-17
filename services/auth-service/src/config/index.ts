@@ -7,4 +7,5 @@ export const config = Object.freeze({
     environment: String(process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
 
     mongoURI: String(process.env.MONGO_URI) || 'mongodb://localhost:27017/auth-service',
+    allowed_origins: String(process.env.ALLOWED_ORIGINS) || "http://localhost:4000, http://localhost:4001"
 })
