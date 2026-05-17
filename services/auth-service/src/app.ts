@@ -10,8 +10,12 @@ import logger from './config/logger';
 import authRoutes from './apiRoutes';
 import helmet from 'helmet';
 import { corsMiddleware } from './middleware/cors.middleware';
+import { rateLimiterMiddleware } from './middleware/ratelimiter.middleware';
 
 const app = express();
+
+// Trust proxy settings for correct client IP detection when behind a proxy
+app.set('trust proxy', config.trustProxy);
 
 // Middleware
 app.use(express.json({ limit: '10kb' }));
@@ -69,7 +73,7 @@ app.get("/dbCheck", async (_req, res) => {
 });
 
 // API routes
-app.use("/api", authRoutes);
+app.use("/api", rateLimiterMiddleware, authRoutes);
 
 export default app;
 
