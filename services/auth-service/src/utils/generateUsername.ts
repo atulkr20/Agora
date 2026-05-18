@@ -1,10 +1,15 @@
-// example usage: generateUniqueUsername("user") might return "user_a1b2c3"
-export const generateUniqueUsername = (base: string): string => {
-    const randomSuffix = Math.random().toString(36).substring(2, 8); // Generate a random 6-character string
-    return `${base}_${randomSuffix}`;
-}
+const normalizeUsername = (value: string): string => {
+    return value
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "")
+        .replace(/[^a-z0-9]/g, "");
+};
 
-/**
- regiser -> first name , last name , email, password, generate username from first name and last name, if username already exists, add random suffix to make it unique
- login -> email or phone, password
- */
+export const generateUsername = (firstName: string, lastName: string): string => {
+    const baseUsername = normalizeUsername(`${firstName}${lastName}`);
+
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+
+    return `${baseUsername}${randomSuffix}`;
+};

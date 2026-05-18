@@ -1,6 +1,7 @@
-import { Db, MongoClient, ServerApiVersion } from "mongodb";
+import { Collection, Db, MongoClient, ServerApiVersion, Document } from "mongodb";
 import { config } from "../config";
 import logger from "../config/logger";
+import { ECollectionName, EDBName } from "./collection.schema";
 
 const DEFAULT_MONGO_URI = "mongodb://localhost:27017/auth-service";
 const MONGO_URI = getMongoURI();
@@ -99,3 +100,13 @@ export async function disconnectDB(): Promise<void> {
         throw error;
     }
 }
+
+export const getCollection = async <T extends Document>(
+    collectionName: ECollectionName,
+    dbName: EDBName
+): Promise<Collection<T>> => {
+
+    const db: Db = await getDB(dbName);
+
+    return db.collection<T>(collectionName);
+};
