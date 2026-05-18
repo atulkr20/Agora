@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://db:27017/auth-service-db
+
+    depends_on:
+      - db
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  db:
+    image: mongo:latest
+
+    ports:
+      - "27017:27017"
+
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

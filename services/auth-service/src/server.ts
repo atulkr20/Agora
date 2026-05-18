@@ -1,7 +1,7 @@
 import app from "./app";
-import { config } from "./config/index.js";
-import logger from "./config/logger.js";
-import { connectDB, disconnectDB } from "./db/db.js";
+import { config } from "./config/index";
+import logger from "./config/logger";
+import { connectDB, disconnectDB } from "./db/db";
 
 let server: any
 

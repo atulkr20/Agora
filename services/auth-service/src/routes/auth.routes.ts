@@ -11,6 +11,7 @@ authRouter.route("/login").post(authRateLimiterMiddleware)
 
 // protected routes
 authRouter.route("/me").get()
+authRouter.route("/updateMe").put() // here user updare his profile, like all there details
 
 // session management routes
 authRouter.route("/logout").post()

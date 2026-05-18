@@ -1,0 +1,31 @@
+# Exclude version control tracking systems
+.git
+.gitignore
+
+# Exclude local package dependencies (re-installed inside the container)
+node_modules/
+.venv/
+vendor/
+
+# Exclude application build output and distribution folders
+dist/
+build/
+out/
+
+# Exclude environment files containing API keys and database secrets
+.env
+.env*.local
+*.pem
+*.key
+
+# Exclude operating system clutter and editor state files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Exclude application runtime logs and diagnostics
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
