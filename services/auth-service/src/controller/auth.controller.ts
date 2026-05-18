@@ -37,7 +37,7 @@ export const register = async (
                 sameSite: "strict",
 
                 maxAge:
-                    1000 * 60 * 15
+                    1000 * 60 * 15 // 15 minutes
             }
         );
 
@@ -54,7 +54,7 @@ export const register = async (
                 sameSite: "strict",
 
                 maxAge:
-                    1000 * 60 * 60 * 24 * 7
+                    1000 * 60 * 60 * 24 * 7 // 7 days
             }
         );
 
