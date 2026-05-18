@@ -8,7 +8,15 @@ export const config = Object.freeze({
     trustProxy: process.env.TRUST_PROXY === 'true', // Convert to boolean, default is false
 
     mongoURI: String(process.env.MONGO_URI) || 'mongodb://localhost:27017/auth-service',
+    mongoDbName: String(process.env.MONGO_DB_NAME) || 'auth-service-db',
     allowed_origins: String(process.env.ALLOWED_ORIGINS) || "http://localhost:4000, http://localhost:4001",
+
+    // token settings
+    accessTokenSecret: String(process.env.ACCESS_TOKEN_SECRET) || 'change-me-access-secret',
+    refreshTokenSecret: String(process.env.REFRESH_TOKEN_SECRET) || 'change-me-refresh-secret',
+    accessTokenTtlSeconds: Number(process.env.ACCESS_TOKEN_TTL_SECONDS) || 15 * 60, // 15 minutes
+    refreshTokenTtlSeconds: Number(process.env.REFRESH_TOKEN_TTL_SECONDS) || 7 * 24 * 60 * 60, // 7 days
+    refreshCookieName: String(process.env.REFRESH_COOKIE_NAME) || 'refresh_token',
 
     rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
     rateLimitMaxRequests: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs

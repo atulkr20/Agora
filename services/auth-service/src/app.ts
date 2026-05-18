@@ -4,13 +4,14 @@ dns.setServers(['1.1.1.1', '8.8.8.8']);
 import express from 'express';
 import morgan from 'morgan';
 import { cpuUsage } from 'node:process';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 
 import { config } from './config/index';
 import logger from './config/logger';
-import authRoutes from './apiRoutes';
-import helmet from 'helmet';
 import { corsMiddleware } from './middleware/cors.middleware';
 import { rateLimiterMiddleware } from './middleware/ratelimiter.middleware';
+import authRoutes from './apiRoutes';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.set('trust proxy', config.trustProxy);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(helmet())
+app.use(cookieParser()) // for parsing cookies in incoming requests
 
 // CORS configuration - allowing requests from specific origins
 app.use(corsMiddleware);

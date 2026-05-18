@@ -1,7 +1,9 @@
 import express from "express"
 
-const apiRoutes = express()
+import authRouter from "./routes/auth.routes";
 
-// apiRoutes.use("/auth")
+const apiRoutes = express.Router()
+
+apiRoutes.use("/auth", authRouter)
 
 export default apiRoutes
