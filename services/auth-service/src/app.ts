@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import { cpuUsage } from 'node:process';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import requestIp from 'request-ip';
 
 import { config } from './config/index';
 import logger from './config/logger';
@@ -21,8 +22,9 @@ app.set('trust proxy', config.trustProxy);
 // Middleware
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-app.use(helmet())
-app.use(cookieParser()) // for parsing cookies in incoming requests
+app.use(helmet());
+app.use(cookieParser()); // for parsing cookies in incoming requests
+app.use(requestIp.mw()); // for attaching client IP to request object (req.clientIp)
 
 // CORS configuration - allowing requests from specific origins
 app.use(corsMiddleware);
