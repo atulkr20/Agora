@@ -26,8 +26,6 @@ authRouter.route("/refresh").post(rateLimiterMiddleware, userAuthenticate, refre
 authRouter.route("/forgotPassword").post(rateLimiterMiddleware)
 authRouter.route("/changePassword").post(rateLimiterMiddleware, userAuthenticate)
 
-
-
 // Admin routes
 authRouter.route("/admin/getAllUsers").get(isAdminMiddleware)
 authRouter.route("/admin/blockUser").post(isAdminMiddleware)
