@@ -2,7 +2,7 @@ import express from 'express';
 
 import { isAdminMiddleware } from '../middleware/isAdmin.middleware';
 import { authRateLimiterMiddleware, rateLimiterMiddleware } from '../middleware/ratelimiter.middleware';
-import { getMe, login, logout, logoutAll, refresh, register } from '../controller/auth.controller';
+import { getMe, login, logout, logoutAll, refresh, register, updateMe } from '../controller/auth.controller';
 import { userAuthenticate } from '../middleware/authenticate.middleware';
 
 const authRouter = express.Router();
@@ -15,7 +15,7 @@ authRouter.route("/login").post(authRateLimiterMiddleware, login);
 
 // user profile routes
 authRouter.route("/getMe").get(rateLimiterMiddleware, userAuthenticate, getMe);
-// authRouter.route("/updateMe").put() // here user updare his profile, like all there details
+authRouter.route("/updateMe").put(rateLimiterMiddleware, userAuthenticate, updateMe);
 
 // session management routes
 authRouter.route("/logout").post(rateLimiterMiddleware, userAuthenticate, logout);

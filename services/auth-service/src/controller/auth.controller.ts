@@ -8,6 +8,7 @@ import {
     logoutService,
     logoutAllService,
     getMeService,
+    updateMeService,
 } from "../service/auth.service";
 
 import logger from "../config/logger";
@@ -240,6 +241,44 @@ export const getMe = async (req: Request, res: Response) => {
         return res.status(500).json({
             success: false,
             message: "Failed to fetch user profile",
+        });
+    }
+}
+
+// updateMe 
+export const updateMe = async (req: Request, res: Response) => {
+    try {
+
+        const user = (req as any).user;
+
+        // Jo fields update karne hain, unko req.body se lo
+        const { firstName, lastName, phoneNumber, username } = req.body;
+
+        // Update service call karo jo DB mein update karegi
+        const updatedProfile = await updateMeService(
+            {
+                userId: user._id.toString(),
+                firstName,
+                lastName,
+                phoneNumber,
+                username,
+            }
+        )
+
+        return res.status(200).json({
+            success: true,
+            message: "User profile updated successfully",
+            data: {
+                user: updatedProfile,
+            },
+        });
+
+    } catch (error: any) {
+        logger.error("UpdateMe error:", error.message);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update user profile",
         });
     }
 }
