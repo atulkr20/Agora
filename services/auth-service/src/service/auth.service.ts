@@ -342,3 +342,37 @@ export const logoutAllService = async ({ userId }: LogoutAllPayload) => {
         }
     );
 };
+
+// get Me 
+type GetMePayload = {
+    userId: string;
+};
+
+export const getMeService = async ({ userId }: GetMePayload) => {
+
+    const userColl = await getCollection<IUser>(
+        ECollectionName.USERS,
+        EDBName.AUTH_SERVICE,
+    );
+
+    const userProfile = await userColl.aggregate([
+        {
+            $match: {
+                _id: new ObjectId(userId),
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                firstName: 1,
+                lastName: 1,
+                username: 1,
+                email: 1,
+                role: 1,
+                lastLoginAt: 1,
+            },
+        },
+    ]).toArray();
+
+    return userProfile[0];
+};

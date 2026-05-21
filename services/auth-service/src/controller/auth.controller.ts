@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
 
+// Importing services
 import {
     loginService,
     registerService,
     refreshTokenService,
     logoutService,
     logoutAllService,
+    getMeService,
 } from "../service/auth.service";
+
 import logger from "../config/logger";
 import { config } from "../config";
 
@@ -211,3 +214,32 @@ export const logoutAll = async (req: Request, res: Response) => {
         });
     }
 };
+
+// getMe 
+export const getMe = async (req: Request, res: Response) => {
+    try {
+        const user = (req as any).user;
+
+        const profile = await getMeService(
+            {
+                userId: user._id.toString(),
+            }
+        )
+
+        return res.status(200).json({
+            success: true,
+            message: "User profile fetched successfully",
+            data: {
+                user: profile,
+            },
+        });
+
+    } catch (error: any) {
+        logger.error("GetMe error:", error.message);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch user profile",
+        });
+    }
+}
