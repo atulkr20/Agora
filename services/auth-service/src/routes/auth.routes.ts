@@ -2,7 +2,7 @@ import express from 'express';
 
 import { isAdminMiddleware } from '../middleware/isAdmin.middleware';
 import { authRateLimiterMiddleware, rateLimiterMiddleware } from '../middleware/ratelimiter.middleware';
-import { getMe, login, logout, logoutAll, refresh, register, updateMe } from '../controller/auth.controller';
+import { adminGetAllUsers, getMe, login, logout, logoutAll, refresh, register, updateMe } from '../controller/auth.controller';
 import { userAuthenticate } from '../middleware/authenticate.middleware';
 
 const authRouter = express.Router();
@@ -27,7 +27,7 @@ authRouter.route("/forgotPassword").post(rateLimiterMiddleware)
 authRouter.route("/changePassword").post(rateLimiterMiddleware, userAuthenticate)
 
 // Admin routes
-authRouter.route("/admin/getAllUsers").get(isAdminMiddleware)
+authRouter.route("/admin/getAllUsers").get(isAdminMiddleware, adminGetAllUsers);
 authRouter.route("/admin/blockUser").post(isAdminMiddleware)
 
 export default authRouter;

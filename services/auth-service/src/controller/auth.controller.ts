@@ -9,6 +9,7 @@ import {
     logoutAllService,
     getMeService,
     updateMeService,
+    adminGetAllUsersService,
 } from "../service/auth.service";
 
 import logger from "../config/logger";
@@ -280,5 +281,30 @@ export const updateMe = async (req: Request, res: Response) => {
             success: false,
             message: "Failed to update user profile",
         });
+    }
+}
+
+// admin getAllUsers
+export const adminGetAllUsers = async (_req: Request, res: Response) => {
+    try {
+        // Admin middleware se admin check ho chuka hoga, toh bas users fetch karlo
+        const users = await adminGetAllUsersService();
+
+        return res.status(200).json({
+            success: true,
+            message: "All users fetched successfully",
+            data: {
+                users,
+            },
+        });
+    } catch (error: any) {
+        logger.error("Admin GetAllUsers error:", error.message);
+
+        return res.status(500).json(
+            {
+                success: false,
+                message: "Failed to fetch users",
+            }
+        )
     }
 }

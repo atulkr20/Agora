@@ -440,3 +440,27 @@ export const updateMeService = async ({
 
     return safeUser;
 };
+
+// get all users (Admin)
+export const adminGetAllUsersService = async () => {
+    const userColl = await getCollection<IUser>(
+        ECollectionName.USERS,
+        EDBName.AUTH_SERVICE
+    )
+
+    const userInfo = await userColl.aggregate([
+        {
+            $project: {
+                _id: 1,
+                firstName: 1,
+                lastName: 1,
+                email: 1,
+                role: 1,
+                isBlocked: 1,
+                lastLoginAt: 1,
+            }
+        }
+    ]).toArray();
+
+    return userInfo;
+}
