@@ -45,13 +45,17 @@ export const userAuthenticate = async (req: Request, res: Response, next: NextFu
             return;
         }
 
-        (req as any).user = currentUser;
+        (req as any).user = {
+            userId: currentUser._id.toString(),
+            email: currentUser.email,
+            role: currentUser.role,
+        };
         next();
 
     } catch (error: any) {
         logger.error("Error in user authentication middleware: ", error.message);
 
-        if (error instanceof jwt.JsonWebTokenError) {
+        if (error.name === "JsonWebTokenError") {
             res.status(401).json(
                 {
                     success: false,
@@ -61,7 +65,7 @@ export const userAuthenticate = async (req: Request, res: Response, next: NextFu
             return;
         }
 
-        if (error instanceof jwt.TokenExpiredError) {
+        if (error.name === "JsonWebTokenError") {
             res.status(401).json(
                 {
                     success: false,

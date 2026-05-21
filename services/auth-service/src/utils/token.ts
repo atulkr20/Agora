@@ -12,7 +12,7 @@ type AccessTokenPayload = {
 //  Access Token 
 export const generateAccessToken = (payload: AccessTokenPayload): string => {
     return jwt.sign(payload, config.accessTokenSecret, {
-        expiresIn: Math.floor(config.accessTokenTtlMs / 1000), // seconds mein
+        expiresIn: config.accessTokenTtlMs, // seconds mein
     });
 };
 
