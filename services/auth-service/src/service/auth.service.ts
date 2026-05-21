@@ -342,3 +342,125 @@ export const logoutAllService = async ({ userId }: LogoutAllPayload) => {
         }
     );
 };
+
+// get Me 
+type GetMePayload = {
+    userId: string;
+};
+
+export const getMeService = async ({ userId }: GetMePayload) => {
+
+    const userColl = await getCollection<IUser>(
+        ECollectionName.USERS,
+        EDBName.AUTH_SERVICE,
+    );
+
+    const userProfile = await userColl.aggregate([
+        {
+            $match: {
+                _id: new ObjectId(userId),
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                firstName: 1,
+                lastName: 1,
+                username: 1,
+                email: 1,
+                role: 1,
+                lastLoginAt: 1,
+            },
+        },
+    ]).toArray();
+
+    return userProfile[0];
+};
+
+// update Me
+type UpdateMePayload = {
+    userId: string;
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    username?: string;
+}
+
+export const updateMeService = async ({
+    userId,
+    firstName,
+    lastName,
+    phoneNumber,
+    username,
+}: UpdateMePayload) => {
+
+    const userColl = await getCollection<IUser>(
+        ECollectionName.USERS,
+        EDBName.AUTH_SERVICE
+    );
+
+    const update: Partial<IUser> = {};
+
+    if (firstName !== undefined)
+        update.firstName = firstName.trim();
+
+    if (lastName !== undefined)
+        update.lastName = lastName.trim();
+
+    if (phoneNumber !== undefined)
+        update.phoneNumber = phoneNumber;
+
+    if (username !== undefined)
+        update.username = username.trim();
+
+    if (Object.keys(update).length === 0) {
+        throw new Error("No fields to update");
+    }
+
+    const updatedUser = await userColl.findOneAndUpdate(
+        {
+            _id: new ObjectId(userId),
+        },
+        {
+            $set: {
+                ...update,
+                updatedAt: new Date(),
+            },
+        },
+        {
+            returnDocument: "after",
+        }
+    );
+
+    if (!updatedUser) {
+        throw new Error("User not found");
+    }
+
+    const { password: _pwd, ...safeUser } = updatedUser;
+
+    return safeUser;
+};
+
+// get all users (Admin)
+export const adminGetAllUsersService = async () => {
+    const userColl = await getCollection<IUser>(
+        ECollectionName.USERS,
+        EDBName.AUTH_SERVICE
+    )
+
+    const userInfo = await userColl.aggregate([
+        {
+            $project: {
+                _id: 1,
+                firstName: 1,
+                lastName: 1,
+                email: 1,
+                role: 1,
+                isBlocked: 1,
+                lastLoginAt: 1,
+            }
+        }
+    ]).toArray();
+
+    return userInfo;
+}

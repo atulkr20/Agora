@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 
+// Importing services
 import {
     loginService,
     registerService,
     refreshTokenService,
     logoutService,
     logoutAllService,
+    getMeService,
+    updateMeService,
+    adminGetAllUsersService,
 } from "../service/auth.service";
+
 import logger from "../config/logger";
 import { config } from "../config";
 
@@ -211,3 +216,95 @@ export const logoutAll = async (req: Request, res: Response) => {
         });
     }
 };
+
+// getMe 
+export const getMe = async (req: Request, res: Response) => {
+    try {
+        const user = (req as any).user;
+
+        const profile = await getMeService(
+            {
+                userId: user._id.toString(),
+            }
+        )
+
+        return res.status(200).json({
+            success: true,
+            message: "User profile fetched successfully",
+            data: {
+                user: profile,
+            },
+        });
+
+    } catch (error: any) {
+        logger.error("GetMe error:", error.message);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch user profile",
+        });
+    }
+}
+
+// updateMe 
+export const updateMe = async (req: Request, res: Response) => {
+    try {
+
+        const user = (req as any).user;
+
+        // Jo fields update karne hain, unko req.body se lo
+        const { firstName, lastName, phoneNumber, username } = req.body;
+
+        // Update service call karo jo DB mein update karegi
+        const updatedProfile = await updateMeService(
+            {
+                userId: user._id.toString(),
+                firstName,
+                lastName,
+                phoneNumber,
+                username,
+            }
+        )
+
+        return res.status(200).json({
+            success: true,
+            message: "User profile updated successfully",
+            data: {
+                user: updatedProfile,
+            },
+        });
+
+    } catch (error: any) {
+        logger.error("UpdateMe error:", error.message);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update user profile",
+        });
+    }
+}
+
+// admin getAllUsers
+export const adminGetAllUsers = async (_req: Request, res: Response) => {
+    try {
+        // Admin middleware se admin check ho chuka hoga, toh bas users fetch karlo
+        const users = await adminGetAllUsersService();
+
+        return res.status(200).json({
+            success: true,
+            message: "All users fetched successfully",
+            data: {
+                users,
+            },
+        });
+    } catch (error: any) {
+        logger.error("Admin GetAllUsers error:", error.message);
+
+        return res.status(500).json(
+            {
+                success: false,
+                message: "Failed to fetch users",
+            }
+        )
+    }
+}

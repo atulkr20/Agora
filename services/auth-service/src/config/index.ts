@@ -12,11 +12,10 @@ export const config = Object.freeze({
     allowed_origins: String(process.env.ALLOWED_ORIGINS) || "http://localhost:4000, http://localhost:4001",
 
     // token settings
-    accessTokenSecret: String(process.env.ACCESS_TOKEN_SECRET || "change-me-access-secret"),
-    // milliseconds mein — cookie maxAge aur session expiresAt dono isme se lenge
-    accessTokenTtlMs: Number(process.env.ACCESS_TOKEN_TTL_SECONDS || 900) * 1000,
-    refreshTokenTtlMs: Number(process.env.REFRESH_TOKEN_TTL_SECONDS || 604800) * 1000,
-    refreshCookieName: String(process.env.REFRESH_COOKIE_NAME || "refreshToken"),
+    accessTokenSecret: String(process.env.ACCESS_TOKEN_SECRET || "change-me-access-secret"), // should be a long, random string in production
+    accessTokenTtlMs: Number(process.env.ACCESS_TOKEN_TTL_SECONDS || 900) * 1000, // 15 minutes in seconds
+    refreshTokenTtlMs: Number(process.env.REFRESH_TOKEN_TTL_SECONDS || 604800) * 1000, // 7 days in seconds
+    refreshCookieName: String(process.env.REFRESH_COOKIE_NAME || "refreshToken"), // name of the cookie to store refresh token
 
     rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
     rateLimitMaxRequests: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
