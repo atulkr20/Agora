@@ -2,7 +2,16 @@ import express from 'express';
 
 import { isAdminMiddleware } from '../middleware/isAdmin.middleware';
 import { authRateLimiterMiddleware, rateLimiterMiddleware } from '../middleware/ratelimiter.middleware';
-import { adminGetAllUsers, getMe, login, logout, logoutAll, refresh, register, updateMe } from '../controller/auth.controller';
+import {
+    adminGetAllUsers,
+    getMe,
+    login,
+    logout,
+    logoutAll,
+    refresh,
+    register,
+    updateMe
+} from '../controller/auth.controller';
 import { userAuthenticate } from '../middleware/authenticate.middleware';
 
 const authRouter = express.Router();
