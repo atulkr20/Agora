@@ -155,7 +155,7 @@ export const registerService = async ({
 
 //  Login 
 type LoginPayload = {
-    email: string;
+    email?: string;
     password: string;
     phoneNumber?: string;
     ipAddress?: string;
@@ -171,13 +171,24 @@ export const loginService = async ({
 }: LoginPayload) => {
     email = email?.toLowerCase().trim();
 
-    if (!email || !password || !phoneNumber) throw new Error("Email, password, and phone number are required");
-    if (!emailRegex.test(email)) throw new Error("Invalid email format");
+    if (!password) throw new Error("Password is required");
+    if (!email && !phoneNumber) throw new Error("Either email or phone number is required");
+    if (email) {
+        email = email.toLowerCase().trim();
+
+        if (!emailRegex.test(email)) {
+            throw new Error("Invalid email format");
+        }
+    }
 
     const userColl = await getCollection<IUser>(ECollectionName.USERS, EDBName.AUTH_SERVICE);
     const sessionColl = await getCollection<ISession>(ECollectionName.SESSIONS, EDBName.AUTH_SERVICE);
 
-    const user = await userColl.findOne({ email, phoneNumber });
+    const query = email
+        ? { email }
+        : { phoneNumber };
+
+    const user = await userColl.findOne(query);
     if (!user) throw new Error("Invalid credentials");
     if (user.isBlocked) throw new Error("Account is blocked");
 
@@ -463,4 +474,24 @@ export const adminGetAllUsersService = async () => {
     ]).toArray();
 
     return userInfo;
+}
+
+// admin block user
+export const adminBlockUserService = async (userId: string) => {
+    const userColl = await getCollection<IUser>(
+        ECollectionName.USERS,
+        EDBName.AUTH_SERVICE
+    )
+
+    const existingUser = await userColl.findOne({ _id: new ObjectId(userId) });
+
+    if (!existingUser) {
+        throw new Error("User not found");
+    }
+
+    await userColl.updateOne(
+        { _id: new ObjectId(userId) },
+        { $set: { isBlocked: true } }
+    );
+
 }
