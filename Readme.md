@@ -4,9 +4,4 @@ Atul & Kushagra => backend flow
 Aman => Frontend
 
 
-apps/     → User-facing applications like API gateway, admin panel, and frontend.
-
-services/ → Independent backend microservices handling core exchange business logic and real-time processing.
-
-shared/   → Reusable shared modules including database clients, types, configs, queues, and utilities used across services.
-
+Building it from first principles using official documentation as the primary reference. We intentionally avoiding AI-generated code during development to keep the learning process hands-on and deeply understand each component.
