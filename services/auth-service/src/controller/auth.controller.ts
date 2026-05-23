@@ -10,6 +10,7 @@ import {
     getMeService,
     updateMeService,
     adminGetAllUsersService,
+    adminBlockUserService,
 } from "../service/auth.service";
 
 import logger from "../config/logger";
@@ -291,6 +292,7 @@ export const updateMe = async (req: Request, res: Response) => {
     }
 }
 
+
 // admin getAllUsers
 export const adminGetAllUsers = async (_req: Request, res: Response) => {
     try {
@@ -313,5 +315,34 @@ export const adminGetAllUsers = async (_req: Request, res: Response) => {
                 message: "Failed to fetch users",
             }
         )
+    }
+}
+
+// Admin blockUser - isAdminMiddleware se admin check ho chuka hoga, toh bas user block kar do
+export const adminBlockUser = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.body;
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required",
+            });
+        }
+
+        // Block user service call karo
+        await adminBlockUserService(String(userId));
+
+        return res.status(200).json({
+            success: true,
+            message: "User blocked successfully",
+        });
+    } catch (error: any) {
+        logger.error("Admin BlockUser error:", error.message);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to block user",
+        });
     }
 }

@@ -475,3 +475,23 @@ export const adminGetAllUsersService = async () => {
 
     return userInfo;
 }
+
+// admin block user
+export const adminBlockUserService = async (userId: string) => {
+    const userColl = await getCollection<IUser>(
+        ECollectionName.USERS,
+        EDBName.AUTH_SERVICE
+    )
+
+    const existingUser = await userColl.findOne({ _id: new ObjectId(userId) });
+
+    if (!existingUser) {
+        throw new Error("User not found");
+    }
+
+    await userColl.updateOne(
+        { _id: new ObjectId(userId) },
+        { $set: { isBlocked: true } }
+    );
+
+}
