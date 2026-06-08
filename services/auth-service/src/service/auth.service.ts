@@ -495,3 +495,39 @@ export const adminBlockUserService = async (userId: string) => {
     );
 
 }
+
+export const changePasswordService = async (userId: string, oldPassword: string, newPassword: string): Promise<void> => {
+
+    if (oldPassword === newPassword) {
+        throw new Error("Old password and new password cannot be same");
+    }
+
+    const userColl = await getCollection<IUser>(
+        ECollectionName.USERS,
+        EDBName.AUTH_SERVICE
+    );
+
+    const user = await userColl.findOne({ _id: new ObjectId(userId) });
+
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    const passwordValid = await argon2.verify(user.password, oldPassword);
+
+    if (!passwordValid) {
+        throw new Error("Invalid credentials");
+    }
+
+    const hashedPassword = await argon2.hash(newPassword);
+
+    await userColl.updateOne(
+        { _id: new ObjectId(userId) },
+        {
+            $set: {
+                password: hashedPassword,
+                updatedAt: new Date()
+            }
+        }
+    )
+}

@@ -11,6 +11,7 @@ import {
     updateMeService,
     adminGetAllUsersService,
     adminBlockUserService,
+    changePasswordService,
 } from "../service/auth.service";
 
 import logger from "../config/logger";
@@ -344,5 +345,42 @@ export const adminBlockUser = async (req: Request, res: Response) => {
             success: false,
             message: "Failed to block user",
         });
+    }
+}
+
+// change password
+export const changePassword = async (req: Request, res: Response) => {
+    try {
+        const { user } = (req as any).user;
+        const { oldPassword, newPassword } = req.body;
+
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: "All fields are required"
+                }
+            )
+        }
+
+        await changePasswordService(String(user._id), oldPassword, newPassword);
+
+        return res.status(200).json(
+            {
+                success: true,
+                message: "Password changed successfully",
+            }
+        )
+
+    } catch (error: any) {
+        logger.error("Change password error:", error.message);
+
+        return res.status(500).json(
+            {
+                success: false,
+                message: "failed to change password"
+            }
+        )
+
     }
 }
