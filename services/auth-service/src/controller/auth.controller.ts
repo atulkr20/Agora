@@ -12,6 +12,7 @@ import {
     adminGetAllUsersService,
     adminBlockUserService,
     changePasswordService,
+    forgotPasswordService,
 } from "../service/auth.service";
 
 import logger from "../config/logger";
@@ -379,6 +380,46 @@ export const changePassword = async (req: Request, res: Response) => {
             {
                 success: false,
                 message: "failed to change password"
+            }
+        )
+
+    }
+}
+
+// forgot password 
+/**
+ flow 
+ user -> FP -> emailEntered -> verify -> then fill new password --> change password 
+ */
+
+export const forgotPassword = async (req: Request, res: Response) => {
+    try {
+        const { email, newPassword } = req.body
+
+        if (!email || !newPassword) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: "All fields are required"
+                }
+            )   
+        }
+
+        await forgotPasswordService(email, newPassword);
+
+        return res.status(200).json(
+            {
+                success: true,
+                message: "Forgot password successfully",
+            }
+        )
+    } catch (error: any) {
+        logger.error("Forgot Password error:", error.message);
+
+        return res.status(500).json(
+            {
+                success: false,
+                message: "failed to forgot password"
             }
         )
 

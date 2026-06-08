@@ -531,3 +531,33 @@ export const changePasswordService = async (userId: string, oldPassword: string,
         }
     )
 }
+
+/**
+ flow 
+ user -> FP -> emailEntered -> verify -> then fill new password --> change password 
+ */
+
+export const forgotPasswordService = async (email: string, newPassword: string): Promise<void> => {
+    const userColl = await getCollection<IUser>(
+        ECollectionName.USERS,
+        EDBName.AUTH_SERVICE
+    )
+
+    const correctEmail = await userColl.findOne({ email })
+
+    if (!correctEmail) {
+        throw new Error("User not found by this email Id,Please Register First")
+    }
+
+    const hashedNewPassword = await argon2.hash(newPassword);
+
+    await userColl.updateOne(
+        { _id: correctEmail._id },
+        {
+            $set: {
+                password: hashedNewPassword,
+                updatedAt: new Date()
+            }
+        }
+    )
+}

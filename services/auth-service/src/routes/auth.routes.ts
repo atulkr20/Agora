@@ -5,6 +5,8 @@ import { authRateLimiterMiddleware, rateLimiterMiddleware } from '../middleware/
 import {
     adminBlockUser,
     adminGetAllUsers,
+    changePassword,
+    forgotPassword,
     getMe,
     login,
     logout,
@@ -34,8 +36,8 @@ authRouter.route("/logoutAll").post(rateLimiterMiddleware, userAuthenticate, log
 authRouter.route("/refresh").post(rateLimiterMiddleware, userAuthenticate, refresh)
 
 // password management routes
-authRouter.route("/forgotPassword").post(rateLimiterMiddleware)
-authRouter.route("/changePassword").post(rateLimiterMiddleware, userAuthenticate)
+authRouter.route("/forgotPassword").post(rateLimiterMiddleware, forgotPassword);
+authRouter.route("/changePassword").post(rateLimiterMiddleware, userAuthenticate, changePassword)
 
 // Admin routes
 authRouter.route("/admin/getAllUsers").get(isAdminMiddleware, adminGetAllUsers);
