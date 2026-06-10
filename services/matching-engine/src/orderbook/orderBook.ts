@@ -1,4 +1,4 @@
-import { Order, Trade, OrderSide} from "./types";
+import type { Order, Trade, OrderSide } from "./types";
 import { randomUUID } from "crypto";
 
 export class OrderBook {
@@ -114,7 +114,7 @@ export class OrderBook {
             trades.push(trade);
 
             // update both order
-            this.applyfill(bestBid, tradeQty);
+            this.applyFill(bestBid, tradeQty);
             this.applyFill(bestAsk, tradeQty);
 
             // Remove fully filled orders from the book
