@@ -1,4 +1,4 @@
-import type { Order, Trade, OrderSide } from "./types";
+import type { Order, Trade } from "./types";
 import { randomUUID } from "crypto";
 
 export class OrderBook {
