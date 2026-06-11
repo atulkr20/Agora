@@ -42,7 +42,7 @@ export class OrderBook {
 
         const bidIndex = this.bids.findIndex((o) => o.id === orderId);
         if(bidIndex !== -1) {
-            const [order] = this.bids.splice(bidIndex, 1);
+            const [order] = this.bids.splice(bidIndex, 1) as [Order];
             order.status = "cancelled"
             return order;
         }
@@ -50,7 +50,7 @@ export class OrderBook {
         // Now asks
         const askIndex = this.asks.findIndex((o) => o.id === orderId);
         if(askIndex !== -1) {
-            const [order] = this.asks.splice(askIndex, 1);
+            const [order] = this.asks.splice(askIndex, 1) as [Order];
             order.status = "cancelled";
             return order;
         }
@@ -87,8 +87,8 @@ export class OrderBook {
         // and the best bid price >= best ask price
 
         while (this.bids.length > 0 && this.asks.length > 0) {
-            const  bestBid = this.bids[0]; // highest buyer
-            const bestAsk = this.asks[0]; // lowest buyer
+            const  bestBid = this.bids[0]!; // highest buyer
+            const bestAsk = this.asks[0]!; // lowest buyer
 
             // No match possible if
             if (bestBid.price < bestAsk.price) {
