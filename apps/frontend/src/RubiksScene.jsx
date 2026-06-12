@@ -204,7 +204,7 @@ function TheDataNetwork() {
   )
 }
 
-function AmbientWrapper() {
+export function AmbientWrapper() {
   const groupRef = useRef()
 
   useFrame((state) => {
