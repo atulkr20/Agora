@@ -17,7 +17,7 @@ export class OrderBook {
 
     // Public API
 
-    async addOrder(order: Order): Trade[] {
+    async addOrder(order: Order): Promise<Trade[]> {
         // validate the order belongs to this book
 
         if(order.symbol !== this.symbol) {
@@ -40,7 +40,7 @@ export class OrderBook {
         }
 
         // try to match after every new order
-        return this.match();
+        return await this.match();
     }
 
     async cancelOrder(orderId: string): Promise<Order | null> {
@@ -48,7 +48,7 @@ export class OrderBook {
 
         const bidIndex = this.bids.findIndex((o) => o.id === orderId);
         if(bidIndex !== -1) {
-            const order = this.bids[bidIndex];
+            const order = this.bids.splice(bidIndex, 1)[0]!;
             order.status = "cancelled";
 
             // Write to DB first, same reasoning as addOrder
@@ -59,11 +59,10 @@ export class OrderBook {
         // Now asks
         const askIndex = this.asks.findIndex((o) => o.id === orderId);
         if(askIndex !== -1) {
-            const [order] = this.asks.splice(askIndex, 1);
+            const order = this.asks.splice(askIndex, 1)[0]!;
             order.status = "cancelled";
 
             await EventStore.orderCancelled(order);
-            this.asks.splice(askIndex, 1);
             return order;
         }
 
@@ -92,15 +91,15 @@ export class OrderBook {
 
     // Matching Engine
 
-    private match(): Trade[] {
+    private async match(): Promise<Trade[]> {
         const trades: Trade[] = [];
 
         // keep looping as long as there are orders on both sides
         // and the best bid price >= best ask price
 
         while (this.bids.length > 0 && this.asks.length > 0) {
-            const  bestBid = this.bids[0]; // highest buyer
-            const bestAsk = this.asks[0]; // lowest buyer
+            const bestBid = this.bids[0]!; // highest buyer
+            const bestAsk = this.asks[0]!; // lowest seller
 
             // No match possible if
             if (bestBid.price < bestAsk.price) {
@@ -159,6 +158,18 @@ export class OrderBook {
             await EventStore.orderFilled(order);
         } else if (order.status === "partial") {
             await EventStore.orderPartial(order);
+        }
+    }
+
+    private applyFill(order: Order, qty: number): void {
+        order.filled += qty;
+        order.remaining -= qty;
+
+        if(order.remaining === 0) {
+            order.status = "filled";
+        } else {
+            // has been partially matched but still has the quantity left
+            order.status = "partial";
         }
     }
 
