@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Order, Trade } from "./types.js"
+import type { Order, Trade } from "./types.js";
 
 // This is the connection to postgres, here we will create one isntance and use it everywhere
 
@@ -82,7 +82,7 @@ export const EventStore = {
     async getOpenOrderEvents(symbol: string): Promise<Order[]> {
         // here we will not replay the orders which is fully filled or cancelled
 
-        const terminalEvents = await prisma.orderEvent.findmany({
+        const terminalEvents = await prisma.orderEvent.findMany({
             where: {
                 symbol,
                 eventType: { in: ["ORDER_FILLED", "ORDER_CANCELLED"]},
