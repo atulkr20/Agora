@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: agora_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: agora
+      POSTGRES_PASSWORD: agora_secret
+      POSTGRES_DB: agora_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - agora_pg_data:/var/lib/postgresql/data  # data persists even if container restarts
+
+volumes:
+  agora_pg_data:
+  

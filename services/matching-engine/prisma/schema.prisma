@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Every action that happens to an order gets logged here as one row 
+// This is our event log (this is from where we will do event sourcing)
+
+model OrderEvent {
+  id String  @id @default(uuid())
+
+  orderId String
+  symbol String
+
+  eventType EventType
+
+  payload Json
+
+  createdAt DateTime @default(now())
+
+  @@index([symbol])  // we'll query by symbol on replay
+  @@index([orderId]) // we'll query by orderid for order history
+}
+
+// These are the four things which can happen to an order
+enum EventType {
+  ORDER_PLACED
+  ORDER_PARTIAL
+  ORDER_FILLED
+  ORDER_CANCELLED
+}
+
+// Whenever a match happens we will record it as trade here
+
+model Trade {
+  id String @id @default(uuid())
+  symbol String
+  buyOrderId String
+  sellOrderId String
+  price Float
+  quantity Float 
+  executedAt DateTime @default(now())
+
+  @@index([symbol])
+}
