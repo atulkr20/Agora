@@ -1,5 +1,6 @@
-import type { Order, Trade, OrderSide } from "./types";
+import type { Order, Trade, OrderSide } from "./types.js";
 import { randomUUID } from "crypto";
+import { EventStore } from "./eventStore.js";
 
 export class OrderBook {
     private symbol: string;
@@ -16,7 +17,7 @@ export class OrderBook {
 
     // Public API
 
-    addOrder(order: Order): Trade[] {
+    async addOrder(order: Order): Trade[] {
         // validate the order belongs to this book
 
         if(order.symbol !== this.symbol) {
@@ -24,6 +25,11 @@ export class OrderBook {
                 `Order symbol ${order.symbol} does not match book symbol ${this.symbol}`
             );
         }
+
+        // we'll write the events to postgres FIRST, before touching Memory.
+        // If this fiales for DB down network issues etc, we throw and never touch the in memory book
+        // So memory and DB never disagree
+        await EventStore.orderPlaced(order);
 
         if(order.side === "buy") {
             this.bids.push(order);
@@ -37,13 +43,16 @@ export class OrderBook {
         return this.match();
     }
 
-    cancelOrder(orderId: string): Order | null {
+    async cancelOrder(orderId: string): Promise<Order | null> {
         // Try9 bids first
 
         const bidIndex = this.bids.findIndex((o) => o.id === orderId);
         if(bidIndex !== -1) {
-            const [order] = this.bids.splice(bidIndex, 1);
-            order.status = "cancelled"
+            const order = this.bids[bidIndex];
+            order.status = "cancelled";
+
+            // Write to DB first, same reasoning as addOrder
+            await EventStore.orderCancelled(order);
             return order;
         }
 
@@ -52,6 +61,9 @@ export class OrderBook {
         if(askIndex !== -1) {
             const [order] = this.asks.splice(askIndex, 1);
             order.status = "cancelled";
+
+            await EventStore.orderCancelled(order);
+            this.asks.splice(askIndex, 1);
             return order;
         }
 
@@ -111,11 +123,22 @@ export class OrderBook {
                 quantity: tradeQty,
                 executedAt: new Date(),
             };
-            trades.push(trade);
 
             // update both order
             this.applyFill(bestBid, tradeQty);
             this.applyFill(bestAsk, tradeQty);
+
+            // Now we'll persist everything that just happened in order
+
+            // 1. The trade itself
+            await EventStore.tradeFired(trade);
+
+            // 2. the updated state of each other (partial or filled)
+            await this.recordFillEvent(bestBid);
+            await this.recordFillEvent(bestAsk);
+
+            trades.push(trade);
+
 
             // Remove fully filled orders from the book
             if (bestBid.remaining === 0) {
@@ -129,15 +152,13 @@ export class OrderBook {
         return trades;
     }
 
-    private applyFill(order: Order,  qty: number): void {
-        order.filled += qty;
-        order.remaining -= qty;
+    // this writes ORDER_FILLED or ORDER_PARTIAL depending on the order's current status after a fill was applied
 
-        if(order.remaining === 0) {
-            order.status = "filled";
-        } else {
-            // has been partially matched but still has the quantity left
-            order.status = "partial";
+    private async recordFillEvent(order: Order): Promise<void> {
+        if(order.status === 'filled') {
+            await EventStore.orderFilled(order);
+        } else if (order.status === "partial") {
+            await EventStore.orderPartial(order);
         }
     }
 
