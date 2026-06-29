@@ -1,4 +1,4 @@
-import type { Order, OrderSide } from "./types";
+import type { Order, OrderSide } from "./types.js";
 import { randomUUID } from "crypto";
 
 interface CreateOrderParams {

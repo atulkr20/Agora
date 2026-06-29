@@ -1,9 +1,13 @@
 import { PrismaClient } from "@prisma/client";
-import { Order, Trade } from "./types.js"
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
+import type { Order, Trade } from "./types.js";
+import "dotenv/config"; // Ensure dotenv loads DATABASE_URL
 
-// This is the connection to postgres, here we will create one isntance and use it everywhere
-
-const prisma = new PrismaClient();
+// This is the connection to postgres, here we will create one instance and use it everywhere
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 export const EventStore = {
 
@@ -82,7 +86,7 @@ export const EventStore = {
     async getOpenOrderEvents(symbol: string): Promise<Order[]> {
         // here we will not replay the orders which is fully filled or cancelled
 
-        const terminalEvents = await prisma.orderEvent.findmany({
+        const terminalEvents = await prisma.orderEvent.findMany({
             where: {
                 symbol,
                 eventType: { in: ["ORDER_FILLED", "ORDER_CANCELLED"]},
