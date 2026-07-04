@@ -31,5 +31,18 @@ export const EventStore = {
         });
     },
 
+    async orderPartial(order: Order, tx?: PrismaTransactionClient): Promise<void> {
+        const client = tx ?? prisma;
+        await client.orderEvent.create({
+            data: {
+                orderId: order.id,
+                symbol: order.symbol,
+                eventType: "ORDER_PARTIAL",
+                payload: order as any,
+            },
+        });
+    },
+    
+
     
  }
