@@ -83,7 +83,41 @@ export const EventStore = {
         });
     },
 
-    
+    // Transactional Write ( we'll be using it inside match() )
+    // we'll be wrapping trade + both fill events in a single postgres transaction.
+    // All three succees or all three are rolled back. Nothing in between
+
+    async persistMatchResult(
+        trade: Trade,
+        filledBid: Order,
+        filledAsk: Order 
+    ): Promise<void> {
+        await prisma.$transaction(async (tx) => {
+
+            // Record the trade
+            await EventStore.tradeFired(trade, tx);
+
+            // Record bid's new state (filled or partial)
+
+            if (filledBid.status === "filled") {
+                await EventStore.orderFilled(filledBid, tx);
+            } else {
+                await EventStore.orderPartial(filledBid, tx);
+            }
+
+
+            // Record ask's new state (filled or partal)
+            if(filledAsk.status === "filled") {
+                await EventStore.orderFilled(filledAsk, tx);
+            } else {
+                await EventStore.orderPartial(filledAsk, tx);
+            }
+
+            // if anything above throws error, postgres rolls back all three writes
+            // and the next time match() runs, and it retries from a clean state
+
+        });
+    },
 
 
 
