@@ -55,6 +55,18 @@ export const EventStore = {
         });
     },
 
+    async orderCancelled(order: Order, tx?: PrismaTransactionClient): Promise<void> {
+        const client = tx ?? prisma;
+        await client.orderEvent.create({
+            data: {
+                orderId: order.id,
+                symbol: order.symbol,
+                eventType: "ORDER_CANCELLED",
+                payload: order as any,
+            },
+        });
+    },
+
     
 
 
