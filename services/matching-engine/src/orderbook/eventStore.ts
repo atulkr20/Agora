@@ -67,7 +67,24 @@ export const EventStore = {
         });
     },
 
+    async tradeFired(trade: Trade, tx?: PrismaTransactionClient): Promise<void> {
+        const client = tx ?? prisma;
+        await client.trade.create({
+            data: {
+                id: trade.id,
+                symbol: trade.symbol,
+                buyOrderId: trade.buyOrderId,
+                sellOrderId: trade.sellOrderId,
+                price: trade.price,
+                quantity: trade.quantity,
+                executedAt: trade.executedAt,
+            },
+
+        });
+    },
+
     
+
 
 
     
