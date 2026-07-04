@@ -1,15 +1,11 @@
 import { PrismaClient, Prisma } from "@prisma/client";
-import { Order, Trade } from "./types.js";
+import type { Order, Trade } from "./types.js";
 
 const prisma = new PrismaClient();
 
-// This ttype represents the normal prisma client or a transaction client that prisma passes inside $transaction().
-// we will use this so every write method can work in both context ( Prisma client or Transaction CLient)
-
-type PrismaTransactionClient = Omit<
-PrismaClient,
-"$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "extends"
->;
+// This type represents the normal prisma client or a transaction client that prisma passes inside $transaction().
+// we will use this so every write method can work in both contexts (Prisma client or Transaction Client)
+type PrismaTransactionClient = Prisma.TransactionClient;
 
 export const EventStore = {
 
@@ -118,6 +114,9 @@ export const EventStore = {
 
         });
     },
+
+    // Read Events ------
+    
 
 
 
