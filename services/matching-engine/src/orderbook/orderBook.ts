@@ -77,6 +77,18 @@ export class OrderBook {
         };
     }
 
+    loadOrders(orders: Order[]): void {
+        for (const order of orders) {
+            if (order.side === "buy") {
+                this.bids.push(order);
+            } else {
+                this.asks.push(order);
+            }
+        }
+        this.sortBids();
+        this.sortAsks();
+    }
+
     // Sorting
 
     private sortBids(): void {
@@ -128,13 +140,8 @@ export class OrderBook {
             this.applyFill(bestAsk, tradeQty);
 
             // Now we'll persist everything that just happened in order
-
-            // 1. The trade itself
-            await EventStore.tradeFired(trade);
-
-            // 2. the updated state of each other (partial or filled)
-            await this.recordFillEvent(bestBid);
-            await this.recordFillEvent(bestAsk);
+            // one atomic transaction, safe
+            await EventStore.persistMatchResult(trade, bestBid, bestAsk);
 
             trades.push(trade);
 
@@ -149,16 +156,6 @@ export class OrderBook {
         }
 
         return trades;
-    }
-
-    // this writes ORDER_FILLED or ORDER_PARTIAL depending on the order's current status after a fill was applied
-
-    private async recordFillEvent(order: Order): Promise<void> {
-        if(order.status === 'filled') {
-            await EventStore.orderFilled(order);
-        } else if (order.status === "partial") {
-            await EventStore.orderPartial(order);
-        }
     }
 
     private applyFill(order: Order, qty: number): void {

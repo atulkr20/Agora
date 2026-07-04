@@ -1,7 +1,12 @@
 import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 import type { Order, Trade } from "./types.js";
+import "dotenv/config";
 
-const prisma = new PrismaClient();
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 // This type represents the normal prisma client or a transaction client that prisma passes inside $transaction().
 // we will use this so every write method can work in both contexts (Prisma client or Transaction Client)
@@ -150,5 +155,6 @@ export const EventStore = {
 
   async disconnect(): Promise<void> {
     await prisma.$disconnect();
+    await pool.end();
   },
 };

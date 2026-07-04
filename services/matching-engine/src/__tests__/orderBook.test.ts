@@ -8,6 +8,7 @@ jest.unstable_mockModule("../orderbook/eventStore.js", () => ({
     orderFilled: jest.fn().mockResolvedValue(undefined),
     orderCancelled: jest.fn().mockResolvedValue(undefined),
     tradeFired: jest.fn().mockResolvedValue(undefined),
+    persistMatchResult: jest.fn().mockResolvedValue(undefined),
     getOpenOrderEvents: jest.fn().mockResolvedValue([]),
     disconnect: jest.fn().mockResolvedValue(undefined),
   },
@@ -247,7 +248,7 @@ describe("EventStore calls", () => {
     expect(EventStore.orderPlaced).toHaveBeenCalledWith(buy);
   });
 
-  test("a full fill calls tradeFired once and orderFilled for both sides", async () => {
+  test("a full fill calls persistMatchResult once with the trade and both orders", async () => {
     const book = makeBook();
     const buy = createOrder({ side: "buy", price: 100, quantity: 1 });
     const sell = createOrder({ side: "sell", price: 100, quantity: 1 });
@@ -255,18 +256,20 @@ describe("EventStore calls", () => {
     await book.addOrder(buy);
     await book.addOrder(sell);
 
-    expect(EventStore.tradeFired).toHaveBeenCalledTimes(1);
-
-    // Both orders ended up fully filled, so orderFilled should fire for each
-    expect(EventStore.orderFilled).toHaveBeenCalledTimes(2);
-    expect(EventStore.orderFilled).toHaveBeenCalledWith(buy);
-    expect(EventStore.orderFilled).toHaveBeenCalledWith(sell);
-
-    // Neither was a partial fill, so orderPartial should never fire here
-    expect(EventStore.orderPartial).not.toHaveBeenCalled();
+    expect(EventStore.persistMatchResult).toHaveBeenCalledTimes(1);
+    expect(EventStore.persistMatchResult).toHaveBeenCalledWith(
+      expect.objectContaining({
+        buyOrderId: buy.id,
+        sellOrderId: sell.id,
+        price: 100,
+        quantity: 1,
+      }),
+      buy,
+      sell
+    );
   });
 
-  test("a partial fill calls orderPartial for the side with quantity left over", async () => {
+  test("a partial fill calls persistMatchResult with trade and both orders (one partial)", async () => {
     const book = makeBook();
     const buy = createOrder({ side: "buy", price: 100, quantity: 2 });
     const sell = createOrder({ side: "sell", price: 100, quantity: 1 });
@@ -274,9 +277,17 @@ describe("EventStore calls", () => {
     await book.addOrder(buy);
     await book.addOrder(sell);
 
-    // sell filled completely, buy has 1 left over — it's "partial"
-    expect(EventStore.orderFilled).toHaveBeenCalledWith(sell);
-    expect(EventStore.orderPartial).toHaveBeenCalledWith(buy);
+    expect(EventStore.persistMatchResult).toHaveBeenCalledTimes(1);
+    expect(EventStore.persistMatchResult).toHaveBeenCalledWith(
+      expect.objectContaining({
+        buyOrderId: buy.id,
+        sellOrderId: sell.id,
+        price: 100,
+        quantity: 1,
+      }),
+      buy,
+      sell
+    );
   });
 
   test("cancelOrder calls EventStore.orderCancelled with the cancelled order", async () => {
@@ -304,5 +315,18 @@ describe("EventStore calls", () => {
     expect(EventStore.tradeFired).not.toHaveBeenCalled();
     expect(EventStore.orderFilled).not.toHaveBeenCalled();
     expect(EventStore.orderPartial).not.toHaveBeenCalled();
+  });
+
+  test("a full match calls persistMatchResult not tradeFired directly", async () => {
+    const book = makeBook();
+    const buy = createOrder({ side: "buy", price: 100, quantity: 1 });
+    const sell = createOrder({ side: "sell", price: 100, quantity: 1 });
+
+    await book.addOrder(buy);
+    await book.addOrder(sell);
+
+    // Should use the transactional method, not the individual ones
+    expect(EventStore.persistMatchResult).toHaveBeenCalledTimes(1);
+    expect(EventStore.tradeFired).not.toHaveBeenCalled();
   });
 });

@@ -7,6 +7,7 @@ const EventStore = {
     orderFilled: jest.fn().mockResolvedValue(undefined),
     orderCancelled: jest.fn().mockResolvedValue(undefined),
     tradeFired: jest.fn().mockResolvedValue(undefined),
+    persistMatchResult: jest.fn().mockResolvedValue(undefined),
     getOpenOrderEvents: jest.fn().mockResolvedValue([]),
     disconnect: jest.fn().mockResolvedValue(undefined),
 };
