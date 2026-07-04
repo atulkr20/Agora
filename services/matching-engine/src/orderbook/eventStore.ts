@@ -116,9 +116,39 @@ export const EventStore = {
     },
 
     // Read Events ------
-    
+    async getOpenOrderEvents(symbol:string): Promise<Order[]> {
+        const terminalEvents = await prisma.orderEvent.findMany({
+            where: {
+                symbol,
+                eventType: { in: ["ORDER_FILLED", "ORDER_CANCELLED"] },
+            },
+            select: { orderId: true },
+        });
 
+        const terminalIds = new Set(terminalEvents.map((e) => e.orderId));
 
+        const allEvents = await prisma.orderEvent.findMany({
+            where: { symbol },
+            orderBy: { createdAt: "asc"},
+        });
 
-    
- }
+        const latestEventPerOrder = new Map<string, typeof allEvents[0]>();
+        for (const event of allEvents) {
+      latestEventPerOrder.set(event.orderId, event);
+    }
+
+    const openOrders: Order[] = [];
+    for (const [orderId, event] of latestEventPerOrder) {
+      if (terminalIds.has(orderId)) continue;
+      const order = event.payload as unknown as Order;
+      order.createdAt = new Date(order.createdAt);
+      openOrders.push(order);
+    }
+
+    return openOrders;
+  },
+
+  async disconnect(): Promise<void> {
+    await prisma.$disconnect();
+  },
+};
