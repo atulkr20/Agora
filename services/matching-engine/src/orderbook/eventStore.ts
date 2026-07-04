@@ -42,7 +42,21 @@ export const EventStore = {
             },
         });
     },
+
+    async orderFilled(order: Order, tx?: PrismaTransactionClient): Promise<void> {
+        const client = tx ?? prisma;
+        await client.orderEvent.create({
+            data: {
+                orderId: order.id,
+                symbol: order.symbol,
+                eventType: "ORDER_FILLED",
+                payload: order as any,
+            },
+        });
+    },
+
     
+
 
     
  }
